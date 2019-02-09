@@ -16,5 +16,100 @@ all disks are on peg1.
 Example: 
 fact: (pred obj1 obj2)
 rule: ((pred obj1 obj2) (pred obj2 obj3)) -> (pred obj1 obj3)
+"""
+
+
+#situation specific
+
+fact: (on disk1 peg1)
+fact: (on disk2 peg1)
+fact: (on disk3 peg1)
+fact: (on disk4 peg1)
+fact: (on disk5 peg1)
+
+fact: (empty peg2)
+fact: (empty peg3)
+
+fact: (on_top disk1)
+
+
+#general setup
+
+fact: (inst disk1 disk)
+fact: (inst disk2 disk)
+fact: (inst disk3 disk)
+fact: (inst disk4 disk)
+fact: (inst disk5 disk)
+
+fact: (inst peg1 peg)
+fact: (inst peg2 peg)
+fact: (inst peg3 peg)
+
+fact: (larger disk5 disk4)
+fact: (larger disk4 disk3)
+fact: (larger disk3 disk2)
+fact: (larger disk2 disk1)
+
+#larger
+rule: ((larger ?x ?y) (larger ?y ?z)) -> (larger ?x ?z)
+
+#movable (target not empty)
+rule: ((inst ?diskA disk) (inst ?pegA peg) (on ?diskA ?pegA) (on_top ?diskA) (inst ?diskB disk) (inst ?pegB peg) (on ?diskB ?pegB) (on_top ?diskB) (larger ?diskB ?diskA)) -> (movable ?diskA ?pegA ?pegB)
+
+#movable (target empty) WORKS
+rule: ((inst ?diskA disk) (inst ?pegA peg) (on ?diskA ?pegA) (on_top ?diskA) (inst ?pegB peg) (empty ?pegB)) -> (movable ?diskA ?pegA ?pegB)
+
+
+
 
 """
+#here be shitty code?
+#once debugged will infer everything from only knowing where the disks are
+
+#situation specific
+
+fact: (on disk1 peg1)
+fact: (on disk2 peg1)
+fact: (on disk3 peg1)
+fact: (on disk4 peg1)
+fact: (on disk5 peg1)
+
+#general setup
+
+fact: (inst disk1 disk)
+fact: (inst disk2 disk)
+fact: (inst disk3 disk)
+fact: (inst disk4 disk)
+fact: (inst disk5 disk)
+
+fact: (inst peg1 peg)
+fact: (inst peg2 peg)
+fact: (inst peg3 peg)
+
+fact: (larger disk5 disk4)
+fact: (larger disk4 disk3)
+fact: (larger disk3 disk2)
+fact: (larger disk2 disk1)
+
+#larger
+rule: ((larger ?x ?y) (larger ?y ?z)) -> (larger ?x ?z)
+
+#on exclusivity
+rule: ((inst ?disk disk) (inst ?pegA peg) (on ?disk ?pegA) (inst ?pegB peg)) -> ~(on ?diskA ?pegB)
+
+#empty WORKS
+rule: ((inst ?peg peg) ~(on disk1 ?peg) ~(on disk2 ?peg) ~(on disk3 ?peg) ~(on disk4 ?peg) ~(on disk5 ?peg)) -> (empty ?peg)
+
+#partially_covered
+rule: ((inst ?diskA disk) (inst ?diskB disk) (inst ?peg peg) (on ?diskA ?peg) (on ?diskB ?peg) (larger ?diskA ?diskB)) -> (partially_covered ?diskA)
+
+#on_top
+rule: ((inst ?disk disk) ~(partially_covered ?disk)) -> (on_top ?disk)
+
+#movable (target not empty)
+rule: ((inst ?diskA disk) (inst ?pegA peg) (on ?diskA ?pegA) (on_top ?diskA) (inst ?diskB disk) (inst ?pegB peg) (on ?diskB ?pegB) (on_top ?diskB) (larger ?diskB ?diskA)) -> (movable ?diskA ?pegA ?pegB)
+
+#movable (target empty) WORKS
+rule: ((inst ?diskA disk) (inst ?pegA peg) (on ?diskA ?pegA) (on_top ?diskA) (inst ?pegB peg) (empty ?pegB)) -> (movable ?diskA ?pegA ?pegB)
+"""
+
